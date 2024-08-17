@@ -8,7 +8,9 @@ const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster
 
 app.use(
   cors({
-    origin: ['http://localhost:5173', 'https://techtore-9c206.web.app'],
+    origin: ['http://localhost:5173', 'https://techtore-9c206.web.app', 'https://techtore-9c206.firebaseapp.com'],
+    credentials: true,
+    optionSuccessStatus: 200,
   })
 );
 app.use(express.json());
@@ -66,8 +68,8 @@ async function run() {
     });
 
     // Send a ping to confirm a successful connection
-    await client.db('admin').command({ ping: 1 });
-    console.log('Pinged your deployment. You successfully connected to MongoDB!');
+    // await client.db('admin').command({ ping: 1 });
+    // console.log('Pinged your deployment. You successfully connected to MongoDB!');
   } finally {
   }
 }
