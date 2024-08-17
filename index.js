@@ -27,8 +27,42 @@ async function run() {
     const productsCollection = db.collection('products');
 
     app.get('/products', async (req, res) => {
-      const products = await productsCollection.find().toArray();
+      const size = parseInt(req.query?.size);
+      const page = parseInt(req.query?.page) - 1;
+      const filter = req.query?.filter;
+      const filterBrand = req.query?.filterBrand;
+      const sortPrice = req.query?.sortPrice;
+      const sortDate = req.query?.sortDate;
+      const search = req.query?.search;
+
+      let query = {
+        name: { $regex: search || '', $options: 'i' },
+      };
+      if (filter) query.category = filter;
+      if (filterBrand) query.brand = filterBrand;
+      let options = {};
+      if (sortPrice) options = { sort: { price: sortPrice === 'asc' ? 1 : -1 } };
+      if (sortDate) options = { sort: { creation_date: sortDate === 'asc' ? 1 : -1 } };
+      const products = await productsCollection
+        .find(query, options)
+        .skip(size * page)
+        .limit(size)
+        .toArray();
       res.send(products);
+    });
+
+    app.get('/count', async (req, res) => {
+      const filter = req.query?.filter;
+      const search = req.query?.search;
+      const filterBrand = req.query?.filterBrand;
+
+      let query = {
+        name: { $regex: search || '', $options: 'i' },
+      };
+      if (filter) query.category = filter;
+      if (filterBrand) query.brand = filterBrand;
+      const count = await productsCollection.countDocuments(query);
+      res.send({ count });
     });
 
     // Send a ping to confirm a successful connection
